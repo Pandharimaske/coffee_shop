@@ -1,0 +1,4 @@
+pandas==2.0.3
+python_dotenv==1.0.1
+mlxtend==0.23.1
+pinecone
