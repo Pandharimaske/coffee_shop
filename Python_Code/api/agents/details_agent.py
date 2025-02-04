@@ -48,8 +48,13 @@ class DetailsAgent():
         """
 
 
-        system_prompt = """ You are a customer support agent for a coffee shop called Merry's way.You should answer every question as if you are waiter and provide the neccessary information to the user regarding their orders """
-
+        # system_prompt = """ You are a customer support agent for a coffee shop called Merry's way.You should answer every question as if you are waiter and provide the neccessary information to the user regarding their orders """
+        system_prompt = """
+        You are a customer support agent for a coffee shop called Merry's Way. 
+        Respond to every question as if you are a friendly waiter, providing necessary information to the user regarding their orders. 
+        Be polite, concise, and helpful when answering questions about the menu, orders, recommendations, and general coffee shop-related inquiries.
+        """
+        
         messages[-1]["content"] = prompt
         input_messages = [{"role":"system" , "content":system_prompt}] + messages[-3:]
 

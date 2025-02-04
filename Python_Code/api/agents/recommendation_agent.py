@@ -74,33 +74,76 @@ class RecommendationAgent():
     
 
     def recommendation_classification(self , message):
-        system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
+        # system_prompt = """ You are a helpful AI assistant for a coffee shop application which serves drinks and pastries. We have 3 types of recommendations:
 
-        1. Apriori Recommendations: These are recommendations based on the user's order history. We recommend items that are frequently bought together with the items in the user's order.
-        2. Popular Recommendations: These are recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
-        3. Popular Recommendations by Category: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the category of the user's requested category.
+        # 1. Apriori Recommendations: These are recommendations based on the user's order history. We recommend items that are frequently bought together with the items in the user's order.
+        # 2. Popular Recommendations: These are recommendations based on the popularity of items in the coffee shop. We recommend items that are popular among customers.
+        # 3. Popular Recommendations by Category: Here the user asks to recommend them product in a category. Like what coffee do you recommend me to get?. We recommend items that are popular in the category of the user's requested category.
         
-        Here is the list of items in the coffee shop:
-        """+ ",".join(self.products) + """
-        Here is the list of Categories we have in the coffee shop:
+        # Here is the list of items in the coffee shop:
+        # """+ ",".join(self.products) + """
+        # Here is the list of Categories we have in the coffee shop:
+        # """ + ",".join(self.product_categories) + """
+
+        # Your task is to determine which type of recommendation to provide based on the user's message.
+
+        # Your output should be in a structured json format like so. Each key is a string and each value is a string. Make sure to follow the format exactly:
+        # {
+        # "chain of thought": "Write down your critical thinking about what type of recommendation is this input relevant to." , 
+        # "recommendation_type": "apriori" or "popular" or "popular by category". Pick one of those and only write the word.
+        # "parameters": This is a  python list. It's either a list of of items for apriori recommendations or a list of categories for popular by category recommendations. Leave it empty for popular recommendations. Make sure to use the exact strings from the list of items and categories above.
+        # }
+        # """
+
+        system_prompt = """
+        You are a helpful AI assistant for a coffee shop application that serves drinks and pastries.
+
+        ### 📋 **Types of Recommendations:**  
+        1. **Apriori Recommendations:**  
+        - Based on the user's order history.  
+        - Recommend items that are frequently bought together with items from the user's current order.  
+
+        2. **Popular Recommendations:**  
+        - Based on overall item popularity in the coffee shop.  
+        - Recommend items that are most popular among all customers.  
+
+        3. **Popular Recommendations by Category:**  
+        - Based on category-specific popularity.  
+        - When a user asks, "What coffee do you recommend?" suggest the most popular items in that category.  
+
+        ---
+
+        ### ☕ **Menu Items:**  
+        """ + ",".join(self.products) + """
+
+        ### 📂 **Product Categories:**  
         """ + ",".join(self.product_categories) + """
 
-        Your task is to determine which type of recommendation to provide based on the user's message.
+        ---
 
-        Your output should be in a structured json format like so. Each key is a string and each value is a string. Make sure to follow the format exactly:
+        ### 🚀 **Your Task:**  
+        Determine which type of recommendation to provide based on the user's message.
+
+        ---
+
+        ### 🗂️ **Output Format:**  
+        Respond strictly in the following JSON format—no extra text, only this structure:
+
+        ```json
         {
-        "chain of thought": "Write down your critical thinking about what type of recommendation is this input relevant to." , 
-        "recommendation_type": "apriori" or "popular" or "popular by category". Pick one of those and only write the word.
-        "parameters": This is a  python list. It's either a list of of items for apriori recommendations or a list of categories for popular by category recommendations. Leave it empty for popular recommendations. Make sure to use the exact strings from the list of items and categories above.
+        "chain of thought": "Explain your reasoning for determining the recommendation type based on the user's message.",
+        "recommendation_type": "apriori" or "popular" or "popular by category",
+        "parameters": "A Python list. For 'apriori', include the relevant items from the user's order. For 'popular by category', include the relevant categories. Leave it empty for 'popular' recommendations."
         }
         """
 
         input_messages = [{"role":"system" , "content":system_prompt}] + message[-3:]
 
         chatbot_output = get_chatbot_response(self.model_name , input_messages)
-        chatbot_output = double_check_json_output(self.model_name , chatbot_output , input_messages)
+        chatbot_output = double_check_json_output(self.model_name , chatbot_output)
 
         output = self.postprocess_classification(chatbot_output)
+
 
         return output
     
@@ -124,11 +167,23 @@ class RecommendationAgent():
         # Respond to User
         recommendations_str = ", ".join(recommendations)
         
-        system_prompt = f"""
-        You are a helpful AI assistant for a coffee shop application which serves drinks and pastries.
-        your task is to recommend items to the user based on their input message. And respond in a friendly but concise way. And put it an unordered list with a very small description.
+        # system_prompt = f"""
+        # You are a helpful AI assistant for a coffee shop application which serves drinks and pastries.
+        # your task is to recommend items to the user based on their input message. And respond in a friendly but concise way. And put it an unordered list with a very small description.
 
-        I will provide what items you should recommend to the user based on their order in the user message. 
+        # I will provide what items you should recommend to the user based on their order in the user message. 
+        # """
+
+        system_prompt = f"""
+        You are a helpful AI assistant for a coffee shop application that serves drinks and pastries.
+
+        🎯 **Your Task:**  
+        - Recommend items to the user based on their input message.  
+        - Respond in a friendly, engaging, yet concise manner.  
+        - Present recommendations as an unordered list (•) with a brief, appealing description for each item.
+
+        💡 **Note:**  
+        I will provide the specific items you should recommend based on the user's order in the input message.
         """
 
         prompt = f"""
@@ -163,11 +218,22 @@ class RecommendationAgent():
         recommendations = self.get_apriori_recommendation(products)
         recommendations_str = ",".join(recommendations)
 
-        system_prompt = f"""
-        You are a helpful AI assistant for a coffee shop application which serves drinks and pastries.
-        your task is to recommend items to the user based on their order.
+        # system_prompt = f"""
+        # You are a helpful AI assistant for a coffee shop application which serves drinks and pastries.
+        # your task is to recommend items to the user based on their order.
 
-        I will provide what items you should recommend to the user based on their order in the user message. 
+        # I will provide what items you should recommend to the user based on their order in the user message. 
+        # """
+
+        system_prompt = f"""
+        You are a helpful AI assistant for a coffee shop application that serves drinks and pastries.
+
+        🎯 **Your Task:**  
+        - Recommend items to the user based on their order.  
+        - Keep your responses friendly, concise, and relevant.
+
+        💡 **Note:**  
+        The specific items to recommend will be provided in the user's message.
         """
 
         prompt = f"""
