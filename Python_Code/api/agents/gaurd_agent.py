@@ -48,7 +48,15 @@ class GuardAgent():
         return output
 
     def postprocess(self,output):
-        output = json.loads(output)
+        try:
+            output = json.loads(output)
+        except json.JSONDecodeError:
+            # fallback if output is not a valid JSON
+            return {
+                "role": "assistant",
+                "content": output.strip() if output else "Sorry, something went wrong.",
+                "memory": {"agent": "guard_agent", "guard_decision": "not allowed"}
+            }
 
         dict_output = {
             "role": "assistant",
@@ -61,4 +69,4 @@ class GuardAgent():
 
 
 
-    
+   
