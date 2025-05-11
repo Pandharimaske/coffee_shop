@@ -26,12 +26,15 @@ def double_check_json_output(client,model_name,json_string):
     If the Json is correct just return it.
 
     Do NOT return a single letter outside of the json string.
+    Make sure that each key is enclosed in double quotes.
+    The first thing you shuld write be open curly brace of the json and the last letter you write should be the closing curly brace.
+
+    You should check the json string for the following text between triple backticks:
 
     {json_string}
     """
 
     messages = [{"role": "user", "content": prompt}]
-
     response = get_chatbot_response(client,model_name,messages)
-
+    response = response.replace("'","")
     return response
