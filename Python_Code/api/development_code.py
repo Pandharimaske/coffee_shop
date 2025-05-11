@@ -1,6 +1,7 @@
 from agents.gaurd_agent import GuardAgent
 from agents.classification_agent import ClassificationAgent
 from agents.details_agent import DetailsAgent
+from agents.recommendation_agent import RecommendationAgent
 from agents.agent_protocol import AgentProtocol
 import os
 from typing import Dict
@@ -12,6 +13,11 @@ def main():
 if __name__ == "__main__":
     gaurd_agent = GuardAgent()
     classification_agent = ClassificationAgent()
+    recommendation_agent = RecommendationAgent('/Users/pandhari/coffee_shop/Python_Code/api/recommendation_objects/apriori_recommendations.json',
+                                                    '/Users/pandhari/coffee_shop/Python_Code/api/recommendation_objects/popularity_recommendation.csv'
+                                                    )
+
+
     agent_dict : Dict[str ,AgentProtocol] = {
         "details_agent": DetailsAgent(),
         #"classification_agent": ClassificationAgent(),

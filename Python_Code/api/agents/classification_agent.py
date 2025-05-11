@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import json
 from copy import deepcopy
-from .utils import get_chatbot_response
+from .utils import get_chatbot_response , double_check_json_output
 from openai import OpenAI
 load_dotenv()
 
@@ -39,6 +39,7 @@ class ClassificationAgent():
         input_messages += messages[-3:]
 
         chatbot_output =get_chatbot_response(self.client,self.model_name,input_messages)
+        chatbot_output = double_check_json_output(self.client , self.model_name , chatbot_output)
         output = self.postprocess(chatbot_output)
         return output
 
